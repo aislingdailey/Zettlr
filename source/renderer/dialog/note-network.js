@@ -27,25 +27,37 @@ class NoteNetwork extends ZettlrDialog {
     var tmpLinks = []
     var tmpNodes = []
 
+    var currentDir = window.renderer.getCurrentDir()
+    var entries = Object.entries(data)
+
+    // Find all nodes located in the current directory.
+    var entriesInCurrentDir = entries.filter((x) => x[1].directory.startsWith(currentDir.path))
+    var ids = new Set();
+
     // Building link list
-    for (const a of Object.entries(data)) {
+    for (const a of entriesInCurrentDir) {
+      ids.add(a[0])
       if (a[1].outbound) {
         for (const i of a[1].outbound) {
           if (i) {
             tmpLinks.push({ 'source': a[0], 'target': i })
+            ids.add(i)  // Include linked external nodes
           }
         }
       }
     }
 
     // Building node list
-    for (const a of Object.entries(data)) {
-      tmpNodes.push({
-        'id': a[0],
-        'title': a[1].name ? a[1].name.replace(a[0], '') : 'Undefined',
-        'inbound': a[1].inbound ? a[1].inbound.length : 0,
-        'outbound': a[1].outbound ? a[1].outbound.length : 0
-      })
+    for (const a of entries) {
+      // Only display nodes linked with[in|out] the current directory.
+      if (ids.has(a[0])) {
+        tmpNodes.push({
+          'id': a[0],
+          'title': a[1].name ? a[1].name.replace(a[0], '') : 'Undefined',
+          'inbound': a[1].inbound ? a[1].inbound.length : 0,
+          'outbound': a[1].outbound ? a[1].outbound.length : 0
+        })
+      }
     }
 
     this.graph = {

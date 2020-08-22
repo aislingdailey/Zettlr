@@ -258,12 +258,12 @@ function parseFileContents (file, content) {
 
   // Parse links in the file
   while ((match = linkRE.exec(mdWithoutCode)) != null) {
-    file.links.push({ 'name': file.name.replace(file.ext, ''), 'source': file.id, 'target': match[1] })
+    file.links.push({ 'directory': file.dir, 'name': file.name.replace(file.ext, ''), 'source': file.id, 'target': match[1] })
   }
 
   // Always have atleast one link for identity
   if (file.links.length === 0) {
-    file.links.push({ 'name': file.name.replace(file.ext, ''), 'source': file.id, 'target': null })
+    file.links.push({ 'directory': file.dir, 'name': file.name.replace(file.ext, ''), 'source': file.id, 'target': null })
   }
 }
 

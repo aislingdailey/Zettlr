@@ -41,6 +41,7 @@ class LinkProvider {
           // Create the entry if needed
           if (!this._globalLinkDatabase[link.source]) {
             this._globalLinkDatabase[link.source] = {}
+            this._globalLinkDatabase[link.source].directory = link.directory
             this._globalLinkDatabase[link.source].name = link.name
             this._globalLinkDatabase[link.source].outbound = []
             this._globalLinkDatabase[link.source].inbound = []
@@ -56,6 +57,7 @@ class LinkProvider {
             // Add a reciproqual inbound entry if needed
             if (!this._globalLinkDatabase[link.target]) {
               this._globalLinkDatabase[link.target] = {
+                'directory': '',
                 'name': '',
                 'outbound': [],
                 'inbound': []
@@ -228,11 +230,11 @@ class LinkProvider {
    * @param {String} source  The link source
    * @param {String} target  The link target
    */
-  set (name, source, target) {
+  set (directory, name, source, target) {
     let link = this.get({ 'name': name, 'source': source, 'target': target })
     // Either overwrite or add
     if (!link) {
-      this._links.push({ 'name': name, 'source': source, 'target': target })
+      this._links.push({ 'directory': directory, 'name': name, 'source': source, 'target': target })
     }
 
     this._save()
@@ -250,8 +252,8 @@ class LinkProvider {
     let retVal = true
     for (let l of links) {
       // Only update correctly set links
-      if (l.hasOwnProperty('name') && l.hasOwnProperty('source') && l.hasOwnProperty('target')) {
-        this.set(l.name, l.source, l.target)
+      if (l.hasOwnProperty('directory') && l.hasOwnProperty('name') && l.hasOwnProperty('source') && l.hasOwnProperty('target')) {
+        this.set(l.directory, l.name, l.source, l.target)
       } else {
         retVal = false
       }
