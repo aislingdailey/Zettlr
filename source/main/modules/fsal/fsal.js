@@ -35,6 +35,7 @@ module.exports = class FSAL extends EventEmitter {
     this._cache = new FSALCache(path.join(cachedir, 'fsal/cache'))
     this._watchdog = new FSALWatchdog()
     this._isCurrentlyHandlingRemoteChange = false
+    this._fsalIsBusy = false // Locks certain functionality during running of actions
     this._remoteChangeBuffer = [] // Holds events for later processing
     this._remoteChangeTimeout = null // Holds the timeout to ignore remote changes
 
@@ -365,7 +366,7 @@ module.exports = class FSAL extends EventEmitter {
       this._remoteChangeBuffer.push({ 'event': event, 'changedPath': changedPath })
 
       // Handle the buffer if we're not currently handling a change.
-      if (!this._isCurrentlyHandlingRemoteChange) this._afterRemoteChange()
+      if (!this._isCurrentlyHandlingRemoteChange && !this._fsalIsBusy) this._afterRemoteChange()
     })
   } // END constructor
 
@@ -391,12 +392,12 @@ module.exports = class FSAL extends EventEmitter {
       if (isAttachment(changedPath, true)) descriptorHash = hash(path.dirname(changedPath))
       descriptor = this.find(descriptorHash)
     } else {
-      // Both in case of add and addDir there'll be a parent directory
-      // we have to find
-      let dir
+      // Both in case of add and addDir there'll
+      // be a parent directory we have to find
+      let dir = changedPath
       do {
         let oldDir = dir
-        dir = path.dirname(changedPath)
+        dir = path.dirname(dir)
         if (dir === oldDir) break // We've reached the top of the file system
         descriptorHash = hash(dir)
       } while (!(descriptor = this.find(descriptorHash)))
@@ -486,10 +487,7 @@ module.exports = class FSAL extends EventEmitter {
       let hasChanged = await FSALFile.hasChangedOnDisk(descriptor)
       global.log.info('Change event detected. FSALFile::hasChangedOnDisk reports: ' + hasChanged + ' with modtime ' + descriptor.modtime, FSALFile.metadata(descriptor))
       if (!hasChanged) {
-        global.log.info(`The file ${descriptor.name} has not changed, but a change event was fired by chokidar.`, {
-          'mTime': descriptor.modtime,
-          'birthTime': descriptor.creationtime
-        })
+        global.log.info(`The file ${descriptor.name} has not changed, but a change event was fired by chokidar.`)
       } else {
         global.log.info(`Chokidar has detected a change event for file ${descriptor.name}. Attempting to re-parse ...`)
         // Remove the cached value
@@ -593,16 +591,16 @@ module.exports = class FSAL extends EventEmitter {
   }
 
   _afterRemoteChange () {
-    if (this._isCurrentlyHandlingRemoteChange) return // Let's wait for it to finish
+    if (this._isCurrentlyHandlingRemoteChange || this._fsalIsBusy) return // Let's wait for it to finish
     // Called after a remote change has been handled.
     // Let's see if we still have events to handle
     if (this._remoteChangeBuffer.length > 0) {
       let event = this._remoteChangeBuffer.shift()
       if (!isDir(event.changedPath) && !isFile(event.changedPath)) {
-        global.log.info(`Could not process event ${event.event} for ${event.changedPath}: The corresponding node does not exist anymore!`)
+        global.log.info(`Could not process event ${event.event} for ${event.changedPath}: The corresponding node does not exist anymore.`)
         return this._afterRemoteChange() // Try the next event
       }
-      this._onRemoteChange(event.event, event.changedPath).catch(e => console.error(e))
+      this._onRemoteChange(event.event, event.changedPath).catch(e => global.log.error(e.message, e))
     }
   }
 
@@ -1031,11 +1029,20 @@ module.exports = class FSAL extends EventEmitter {
       throw new Error(`Unknown action ${actionName}`)
     }
 
+    this._fsalIsBusy = true
+
     let ret = await this._actions[actionName](
       options.source,
       options.target || options.source, // Some actions only have a source
       options.info
     )
+
+    this._fsalIsBusy = false
+
+    // During action run, no remote changes have been handled, but now it may
+    // be that some have amassed, so make sure to run them afterwards.
+    this._afterRemoteChange()
+
     return ret
   }
 }

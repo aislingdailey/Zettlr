@@ -43,6 +43,11 @@ class DirProjectExport extends ZettlrCommand {
 
     let config = dir._settings.project
 
+    if (!config) {
+      global.log.error(`Could not export project: Directory ${dir.name} has no project.`)
+      return false
+    }
+
     // Receive a two dimensional array of all directory contents
     let files = objectToArray(dir, 'children')
 
@@ -83,6 +88,7 @@ class DirProjectExport extends ZettlrCommand {
       'stripLinks': 'full',
       'pdf': config.pdf,
       'title': config.title,
+      'date': '\\today',
       'author': config.pdf.author,
       'keywords': config.pdf.keywords,
       'cslStyle': config.cslStyle

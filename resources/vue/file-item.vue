@@ -30,6 +30,7 @@
       v-on:dragend.stop="stopDragging"
     >
       <p class="filename">
+        <clr-icon shape="blocks-group" class="is-solid" v-if="isProject"></clr-icon>
         {{ basename }}
       </p>
       <Sorter
@@ -103,6 +104,7 @@
   const TagList = require('./tag-list.vue').default
   const Sorter = require('./sorter.vue').default
   const formatDate = require('../../source/common/util/format-date.js')
+  const { trans } = require('../../source/common/lang/i18n.js')
 
   module.exports = {
     name: 'file-item',
@@ -136,6 +138,7 @@
       getTagList: function () { return this.obj.tags.join(', ') },
       hasTags: function () { return this.obj.tags && this.obj.tags.length > 0 },
       isDirectory: function () { return this.obj.type !== 'file' },
+      isProject: function () { return this.isDirectory && this.obj.project !== null },
       isDraggable: function () { return !this.isDirectory },
       fileMeta: function () { return this.$store.state.fileMeta },
       displayTime: function () { return this.$store.state.displayTime },
@@ -148,6 +151,7 @@
       classList: function () {
         let list = 'list-item ' + this.obj.type
         if (this.$store.state.selectedFile === this.obj.hash) list += ' selected'
+        if (this.obj.type === 'directory' && this.obj.project !== null) list += ' project'
         return list
       },
       isTex: function () { return this.obj.ext === '.tex' },
@@ -170,11 +174,11 @@
       },
       countDirs: function () {
         if (!this.obj.hasOwnProperty('children')) return 0
-        return this.obj.children.filter(e => e.type === 'directory').length + ' Directories' || 0
+        return this.obj.children.filter(e => e.type === 'directory').length + ' ' + trans('system.directories') || 0
       },
       countFiles: function () {
         if (!this.obj.hasOwnProperty('children')) return 0
-        return this.obj.children.filter(e => e.type === 'file').length + ' Files' || 0
+        return this.obj.children.filter(e => e.type === 'file').length + ' ' + trans('system.files') || 0
       },
       countTags: function () { return this.obj.tags.length },
       hasWritingTarget: function () {

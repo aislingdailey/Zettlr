@@ -3,9 +3,9 @@
 
 (function (mod) {
   if (typeof exports === 'object' && typeof module === 'object') { // CommonJS
-    mod(require('../../../node_modules/codemirror/lib/codemirror'))
+    mod(require('codemirror/lib/codemirror'))
   } else if (typeof define === 'function' && define.amd) { // AMD
-    define(['../../../node_modules/codemirror/lib/codemirror'], mod)
+    define(['codemirror/lib/codemirror'], mod)
   } else { // Plain browser env
     mod(CodeMirror)
   }
@@ -16,7 +16,7 @@
   // blocks, second alternative are the simple @ID-things, both recognised by
   // Pandoc citeproc.
   // citationRE is taken from the Citr library (the extraction regex)
-  var citationRE = /(\[([^[\]]*@[^[\]]+)\])|(?<=\s|^)(@[\p{L}\d_][\p{L}\d_:.#$%&\-+?<>~/]*)/gu
+  var citationRE = /(\[(?:[^[\]]*@[^[\]]+)\])|(?<=\s|^)(@[\p{L}\d_][\p{L}\d_:.#$%&\-+?<>~/]*)/gu
   var citeMarkers = [] // CiteMarkers
   var currentDocID = null
   var Citr = require('@zettlr/citr')
@@ -85,11 +85,12 @@
         // markdown, but comments shouldn't be included in rendering)
         // Final check to avoid it for as long as possible, as getTokenAt takes
         // considerable time.
-        if (cm.getTokenAt(curFrom).type === 'comment' ||
-            cm.getTokenAt(curTo).type === 'comment') {
+        let tokenTypeBegin = cm.getTokenTypeAt(curFrom)
+        let tokenTypeEnd = cm.getTokenTypeAt(curTo)
+        if ((tokenTypeBegin && tokenTypeBegin.includes('comment')) ||
+        (tokenTypeEnd && tokenTypeEnd.includes('comment'))) {
           continue
         }
-
         // A final check, as there is an edge case where if people use [[]] as
         // their internal links, and decide to use @-characters somewhere in
         // there, this plugin will attempt to render this as a citation as well

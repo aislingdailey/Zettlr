@@ -91,10 +91,11 @@ function metadata (fileObject) {
  */
 async function updateFileMetadata (fileObject) {
   try {
-    let stat = await fs.lstat(fileObject)
+    let stat = await fs.lstat(fileObject.path)
     fileObject.modtime = stat.mtime.getTime()
+    global.log.info(`Updated modtime for fileDescriptor ${fileObject.name} to ${fileObject.modtime}`)
   } catch (e) {
-    // Do nothing ...
+    global.log.error(`Could not update the metadata for file ${fileObject.name}: ${e.message}`, e)
   }
 }
 
@@ -188,6 +189,7 @@ function parseFileContents (file, content) {
   file.wordCount = countWords(content)
   file.charCount = countWords(content, true)
 
+  file.firstHeading = undefined
   let h1Match = /^#{1}\s(.+)$/m.exec(content)
   if (h1Match !== null) file.firstHeading = h1Match[1]
 

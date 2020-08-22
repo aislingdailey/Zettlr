@@ -43,7 +43,7 @@ With Zettlr, writing professional texts is easy and motivating: Whether you are 
 - Available in over a dozen languages
 - Tight and ever-growing **integration with your favourite reference manager** (such as Zotero or JabRef)
 - **Cite with Zettlr** using `citeproc` and your existing literature database
-- Four **themes and dark mode support**
+- Five **themes and dark mode support**
 - File-agnostic writing: Enjoy **full control over your own files**
 - Keep all your notes and texts **in one place** — searchable and accessible
 - **Code highlighting** for many languages
@@ -69,19 +69,21 @@ If you have downloaded Zettlr, [head over to our website](https://docs.zettlr.co
 
 ## Contributing
 
-Zettlr is an [Electron](https://www.electronjs.org/)-based app, so to start developing, you'll need to have a [NodeJS](https://nodejs.org/)-stack on your computer installed. Make sure Node and preferably [Yarn](https://yarnpkg.com/en/) are installed, which is the recommended package manager.
+Zettlr is an [Electron](https://www.electronjs.org/)-based app, so to start developing, you'll need to have:
+1. A [NodeJS](https://nodejs.org/)-stack on your computer installed. Make sure it is Node 12+ (`lts/erbium`). To test what version you have, try `node -v`.
+2. [Yarn](https://yarnpkg.com/en/) installed, which is the recommended package manager for the project. You can install this globally using `npm install -g yarn`.
 
 Then, simply clone the repository and install the dependencies on your local computer:
 
 ```bash
 $ git clone https://github.com/Zettlr/Zettlr.git
 $ cd Zettlr
-$ yarn install # or npm install
+$ yarn install
 $ cd source
-$ yarn install # or npm install
+$ yarn install
 ```
 
-_(Please note the second `yarn install`/`npm install` in the source directory. This is necessary to build the app locally.)_
+_(Please note the second `yarn install` in the source directory. This is necessary to build the app locally.)_
 
 The `install`-scripts will automatically precompile all assets for the first time, so that you can immediately run `yarn start` after cloning the repository. However, whenever you change something of the resources, you should run these commands again. The next section will teach you everything you need to know about the commands at your disposal for developing the app.
 

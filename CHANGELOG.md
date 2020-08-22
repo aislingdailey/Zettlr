@@ -1,4 +1,58 @@
-# (no version assigned)
+# 1.7.5
+
+## GUI and Functionality
+
+- Fixed a bug where opening RMarkdown files with Zettlr not open would throw an error.
+- Fixed a bug where the app would not process inline images during export, leading to missing images.
+- HTML Export now centres figure captions underneath figures (thanks to @Kangie for implementing).
+- Zettlr finally allows alternative/title texts in images to be specified, making it possible to preview images with a title, and have them properly export even with relative filenames.
+- Fix wrong design of the sorters in combined sidebar file trees.
+- Fixed a bug where adding more and more list-characters in front of a list item would make the left gutter "swallow" these due to an extreme amount of negative indent. Now the line indentation for soft-wrapped lists (or anything indented) should work as expected.
+- Fixed a behaviour that would sometimes lead to the editor inserting `tab`-characters instead of spaces.
+- Added UX improvements to the fold gutter and the global search bar (thanks to @doup for implementing).
+- Fixed non-centered button icons and made some UI elements a little bit bigger.
+- You can now abort searching in Quicklook windows by pressing escape while the search field is highlighted.
+- Fixed a rare error where codeblocks would not be indented correctly in HTML outputs.
+- Zettlr now renders linked images.
+- Restored the security question when you are about to overwrite an already existing file.
+- Made URLs in references into clickable links that open in the system's browser (thanks to @maxedmands for implementing).
+- The context menu on directories within the file list now correctly shows you project options, if the directory is one.
+- The file tree has been cleaned up. Now, the children toggle (if a directory has any) as well as any additional icon will be displayed aligned with each other.
+- Fixed a bug that would not display the filename but a heading level 1 that has been removed from the file.
+- Single inline image inserts are now handled without adding newline characters.
+
+## Under the Hood
+
+- Added an additional check for directory exports to check that they indeed have an attached project.
+- Removed all legacy WebHostingHub-Glyph references and switch fully to Clarity.
+- Removed unused legacy code from the Quicklook windows.
+- Replaced `getTokenAt` with `getTokenTypeAt`, hopefully achieving performance gains on documents littered with renderable elements.
+
+# 1.7.4
+
+## GUI and Functionality
+
+- Removed a verbose debug notification which was added in order to test for persistence of bug #746.
+
+## Under the Hood
+
+- Fixed missing CSS styles (#1141).
+
+# 1.7.3
+
+## GUI and Functionality
+
+- Fixed a bug causing project exports to fail.
+- The `Cmd/Ctrl+K`-shortcut now works with most domains and protocols (i.e. no matter which URL is in the clipboard, it should insert it now).
+- Fixed a serious bug that would lead to file descriptors never updating their metadata and cause thousands of remote notifications where they shouldn't be. Due to this, Zettlr was thinking that the file hasn't been updated by a save.
+- The application is now also available as an Windows ARM 64bit release.
+
+## Under the Hood
+
+- Upgraded `joplin-turndown` which should result in better HTML-to-Markdown conversion on pasting.
+- In case Pandoc produces any output (such as warnings or other useful info) but runs successfully, this output will be logged so that you can troubleshoot even non-fatal warnings.
+
+# 1.7.2
 
 ## GUI and Functionality
 
@@ -16,12 +70,21 @@
 - You should now be able to fold Markdown sections from anywhere within their section text.
 - Fixed a rare bug where Zettlr would attempt to render an internal link as a citation.
 - Creating files using a case-sensitive extension name should now work.
-- Set desktop Linux desktop icon in BrowserWindow config
+- Set desktop Linux desktop icon in BrowserWindow config.
+- `reveal.js`-presentations now do not have standalone-flags during export.
+- The "Import"-option now also lets you select Markdown and text files. However, instead of running them through Pandoc, they are directly copied into the target directory.
+- Fixed a bug that would cause the global search to stop working in certain situations, e.g. after renaming a file.
+- The middle mouse button now closes tabs (thanks to @Kaan0200 for implementing).
 
 ## Under the Hood
 
 - Added the logo source files to source control. Please make sure to read the accompanying README file in the `icons`-directory before using!!
 - The AutoCorrect replacement now checks for the actual mode at both range endings before actually performing a replacement.
+- The importer is now a module.
+- Fixed a logical error in the FSAL change detection, which would lead to the FSAL not being able to process additions of assets.
+- The application now uses `app.getVersion()` instead of requiring the `package.json`-file (thanks to @Aigeruth for implementing).
+- CodeMirror is now required directly within the plugins and is independent of the location of `node_modules`.
+- Zettlr is now also available for ARM64 Windows (thanks to @smitec for implementing).
 
 # 1.7.1
 
@@ -520,6 +583,7 @@ This release contains several breaking changes to 1.6 due to heavy internal refa
 - The full path to an attachment will now be shown on mouse over.
 - You can now turn off the dialog asking you to load remote changes into the editor by checking the corresponding checkbox in the preferences or in the dialog.
 - The file list now shows the full filename after a 1 second delay if you keep your mouse over the name of a file.
+- You can middle mouse click on editor-tabs to close them.
 
 ### Fixes
 
